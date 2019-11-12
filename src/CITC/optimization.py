@@ -1,11 +1,13 @@
 import sys
 import os
 import numpy as np
+import mlrose
+
 # from numdifftools import Jacobian
 from scipy.optimize import differential_evolution
 from scipy import stats
 from CITC.constraints import Constraint
-
+# ContinuousOpt
 # sys.path.insert(0, 'citrine-challenge/src/CITC/')
 
 
@@ -149,11 +151,13 @@ class Optimization():
         xmin = self.test_gen.gen_bound(dim)[0]
         xmax = self.test_gen.gen_bound(dim)[1]
         bounds = [(low, high) for low, high in zip(xmin, xmax)]
-        mybounds = MyBounds(xmin, xmax)
+        # mybounds = MyBounds(xmin, xmax)
         # initialize counters, set step_size, threshold
         count = 0
         count_f = 0
-        thres = 1e-5
+        thres = 1e-4
+        res_x = initial_point
+        # flag = True
         # step_size = 0.5
         # Start the search for candidates
         print("Searching for solutions...")
@@ -161,7 +165,7 @@ class Optimization():
             # minimizer_kwargs = dict(method="COBYLA", constraints = cons_co)
             # if count_f > 0 and count_f % 5 == 0:
             #     minimizer_kwargs = dict(method="SLSQP", constraints = cons_sl, bounds = bounds ) # jac = lambda x: self.fun_der(x, dim-1)
-            # try:
+            try:
 # func, bounds, args=(), strategy='best1bin', maxiter=1000, popsize=15, 
 # tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=None, callback=None, 
 # disp=False, polish=True, init='latinhypercube', atol=0, updating='immediate', workers=1
@@ -169,38 +173,46 @@ class Optimization():
                 # res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), initial_point, minimizer_kwargs=minimizer_kwargs,\
                 #   niter_success = 3, niter = 5, accept_test = mybounds, stepsize = step_size)
                 # constraintss = self.input.apply(res.x)
-            res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), init=(initial_point, initial_point, initial_point,initial_point, initial_point)  ,bounds=bounds, strategy='best1bin' , maxiter=100, popsize=30) # popsize 15
+            # res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), init=(initial_point, initial_point, initial_point,initial_point, initial_point)  ,bounds=bounds, strategy='best1bin' , maxiter=100, popsize=30) # popsize 15
+            # res = 
+                if self.input.apply(res_x):
+                    fitness_cust = mlrose.CustomFitness(lambda x: self.test_gen.objective(x, dim-1))
+                else: 
+                    fitness_cust = mlrose.CustomFitness(lambda x: sum(x)*100)
+                problem = mlrose.ContinuousOpt(length = dim, fitness_fn = fitness_cust ,  min_val=1e-9 , max_val = 1, maximize = False) #   
+                res_x, res_fun = mlrose.simulated_annealing(problem, schedule = mlrose.ExpDecay(), max_attempts = 2, max_iters = 4, init_state = initial_point, random_state = 1)
 # dim-1
 
                 #  , minimizer_kwargs=minimizer_kwargs,\
                 #   niter_success = 3, niter = 5, accept_test = mybounds, stepsize = step_size)
 
-            # except IndexError:
-            #     print("Maximum ???? number of candidates reached")
-            #     return
-            print(res.x)
-            print(res.fun)
-            print(initial_point)
-            if self.test_gen.check_bounds(res.x) and self.input.apply(res.x) and res.fun > 0:   
-                initial_point = res.x + np.random.uniform(-thres, thres, np.shape(res.x))
-                if count == 0:
-                    cons.extend([{'type': 'ineq', 'fun': lambda x: -res.fun - thres - self.test_gen.f(x, dim-1)}])
-                else:
-                    cons[len(cons) - 1] = {'type': 'ineq', 'fun': lambda x: -res.fun - thres - self.test_gen.f(x, dim-1)}
+            except IndexError:
+                print("Maximum ???? number of candidates reached")
+                return
+            print("the solutiuon is", res_x)
+            print("cost function",res_fun)
+            print("initial points are",initial_point)
+            if self.input.apply(res_x) and res_fun > 0 and self.test_gen.check_bounds(res_x):  
+                initial_point = res_x + np.random.uniform(-thres, thres, np.shape(res_x))
+                # if count == 0:
+                #     cons.extend([{'type': 'ineq', 'fun': lambda x: -res_fun - thres - self.test_gen.f(x, dim-1)}])
+                # else:
+                #     cons[len(cons) - 1] = {'type': 'ineq', 'fun': lambda x: -res_fun - thres - self.test_gen.f(x, dim-1)}
                 count = count + 1
-                print('stepppppppp')
+                # print('stepppppppp')
                 print(count, " ", end='', flush=True)
-                for i in res.x:
+                for i in res_x:
                     print("%1.6f" % i, " ", end="", flush=True)
                 print("")
-                self.test_gen.write_output(self.output, res.x)
+                self.test_gen.write_output(self.output, res_x)
             else:
+                initial_point = res_x + np.random.uniform(-2*thres, 2*thres, np.shape(res_x))
                 count_f = count_f + 1
                 # print(count_f)
-                print(count)
+                # print(count)
         
-            # if res.fun < 0:
-            #     print("Maximum number of candidates reached")
-            #     return 
+            if res_fun < 0:
+                print("Maximum number of candidates reached")
+                return 
         self.test_gen.close_output(self.output)
         return
