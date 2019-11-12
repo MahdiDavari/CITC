@@ -12,12 +12,16 @@ from CITC.constraints import Constraint
 # Class to generate the testcase and output configurations required to run the optimization 
 class Test_gen():
     def __init__(self):
+        # self.input = Constraint(input_file) # be carefull
+
         print("Testcase created...")
 
     # n-dimensional volume function
     def f(self, x, n):
         if (n < 0): return 1
+        # self.test_gen.
         # if cons(x):
+        # if self.input.apply(x):
         return x[n] * self.f(x, n-1)
         # else: return 1000
 
@@ -32,8 +36,10 @@ class Test_gen():
      
     # objective function * -1 since the default algorithm find the minimum candidates. With this
     # transformation it will find the maximum conditions of the objective function   
-    def objective(self, x, n):
+    def objective(self, x,  n):
+        # if constraints(x):
         return self.f(x, n)
+        # else: return 1000
 
     # generate unit hypercube boundary conditions
     def gen_bound(self, n):
@@ -134,9 +140,9 @@ class Optimization():
         # Set the constraints
         cons = self.test_gen.gen_const(self.input)
         # Set SLSQP constraints
-        cons_sl = cons
+        # cons_sl = cons
         # set COBYLA constraints
-        cons_co = self.test_gen.gen_bound_const(dim - 1, cons)
+        # cons_co = self.test_gen.gen_bound_const(dim - 1, cons)
         # get the initial points
         initial_point = self.input.get_example()
         # define the bounds of the problem
@@ -148,13 +154,13 @@ class Optimization():
         count = 0
         count_f = 0
         thres = 1e-5
-        step_size = 0.5
+        # step_size = 0.5
         # Start the search for candidates
         print("Searching for solutions...")
         while (count < N):
-            minimizer_kwargs = dict(method="COBYLA", constraints = cons_co)
-            if count_f > 0 and count_f % 5 == 0:
-                minimizer_kwargs = dict(method="SLSQP", constraints = cons_sl, bounds = bounds ) # jac = lambda x: self.fun_der(x, dim-1)
+            # minimizer_kwargs = dict(method="COBYLA", constraints = cons_co)
+            # if count_f > 0 and count_f % 5 == 0:
+            #     minimizer_kwargs = dict(method="SLSQP", constraints = cons_sl, bounds = bounds ) # jac = lambda x: self.fun_der(x, dim-1)
             # try:
 # func, bounds, args=(), strategy='best1bin', maxiter=1000, popsize=15, 
 # tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=None, callback=None, 
@@ -163,7 +169,7 @@ class Optimization():
                 # res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), initial_point, minimizer_kwargs=minimizer_kwargs,\
                 #   niter_success = 3, niter = 5, accept_test = mybounds, stepsize = step_size)
                 # constraintss = self.input.apply(res.x)
-            res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), init=(initial_point, initial_point, initial_point,initial_point, initial_point)  ,bounds=bounds, strategy='best1bin' , maxiter=1000, popsize=30) # popsize 15
+            res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), init=(initial_point, initial_point, initial_point,initial_point, initial_point)  ,bounds=bounds, strategy='best1bin' , maxiter=100, popsize=30) # popsize 15
 # dim-1
 
                 #  , minimizer_kwargs=minimizer_kwargs,\
