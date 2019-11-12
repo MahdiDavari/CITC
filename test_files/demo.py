@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Citrine Informatics Technical Challenge
 Scientific Software Engineer
@@ -18,11 +19,11 @@ def demo():
     # start the timer
     start = time.time() 
     # input file
-    file_in = "mixture.txt"
+    file_in = "example.txt"
     # output file
     file_out = "output.txt"
     # number of results
-    N = 1000 
+    N = 10 
     # path where the input file exists
     path_in = Path("./")
     # path where the output file exists

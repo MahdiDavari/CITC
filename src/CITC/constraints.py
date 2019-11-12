@@ -43,4 +43,5 @@ class Constraint():
         for expr in self.exprs:
             if not eval(expr):
                 return False
-        return True   
+        return True
+        

@@ -6,7 +6,7 @@ from scipy.optimize import differential_evolution
 from scipy import stats
 from CITC.constraints import Constraint
 
-sys.path.insert(0, 'citrine-challenge/src/CITC/')
+# sys.path.insert(0, 'citrine-challenge/src/CITC/')
 
 
 # Class to generate the testcase and output configurations required to run the optimization 
@@ -17,19 +17,30 @@ class Test_gen():
     # n-dimensional volume function
     def f(self, x, n):
         if (n < 0): return 1
+        # if cons(x):
         return x[n] * self.f(x, n-1)
+        # else: return 1000
+
+    # def ackley(x):
+    # arg1 = -0.2 * np.sqrt(0.5 * (x[0] ** 2 + x[1] ** 2))
+    # arg2 = 0.5 * (np.cos(2. * np.pi * x[0]) + np.cos(2. * np.pi * x[1]))
+
+    # if x[0]+x[1] > 4.1: #this is the constraint, where you would say a+b+c <=1000
+    #     return -20. * np.exp(arg1) - np.exp(arg2) + 20. + np.e
+    # else:
+    #     return 1000 #some high value
      
     # objective function * -1 since the default algorithm find the minimum candidates. With this
     # transformation it will find the maximum conditions of the objective function   
     def objective(self, x, n):
-        return -self.f(x, n)
+        return self.f(x, n)
 
     # generate unit hypercube boundary conditions
     def gen_bound(self, n):
         xmin = [1e-15 for j in range(n)]
         xmax = [1.0 for j in range(n)]
         return [xmin, xmax]
-    
+
     # generates boundary constraints required by COBYLA optimization scheme
     def gen_bound_const(self, n, cons):
         for i in range(0, n+1):
@@ -144,29 +155,34 @@ class Optimization():
             minimizer_kwargs = dict(method="COBYLA", constraints = cons_co)
             if count_f > 0 and count_f % 5 == 0:
                 minimizer_kwargs = dict(method="SLSQP", constraints = cons_sl, bounds = bounds ) # jac = lambda x: self.fun_der(x, dim-1)
-            try:
+            # try:
 # func, bounds, args=(), strategy='best1bin', maxiter=1000, popsize=15, 
 # tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=None, callback=None, 
 # disp=False, polish=True, init='latinhypercube', atol=0, updating='immediate', workers=1
 
                 # res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), initial_point, minimizer_kwargs=minimizer_kwargs,\
                 #   niter_success = 3, niter = 5, accept_test = mybounds, stepsize = step_size)
-                res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), bounds=bounds, strategy='best1bin', maxiter=1000, popsize=15)
+                # constraintss = self.input.apply(res.x)
+            res = differential_evolution(lambda x: self.test_gen.objective(x, dim-1), init=(initial_point, initial_point, initial_point,initial_point, initial_point)  ,bounds=bounds, strategy='best1bin' , maxiter=1000, popsize=30) # popsize 15
+# dim-1
 
                 #  , minimizer_kwargs=minimizer_kwargs,\
                 #   niter_success = 3, niter = 5, accept_test = mybounds, stepsize = step_size)
 
-            except IndexError:
-                print("Maximum number of candidates reached")
-                return
-                
-            if self.test_gen.check_bounds(res.x) and self.input.apply(res.x) and -res.fun > 0:
+            # except IndexError:
+            #     print("Maximum ???? number of candidates reached")
+            #     return
+            print(res.x)
+            print(res.fun)
+            print(initial_point)
+            if self.test_gen.check_bounds(res.x) and self.input.apply(res.x) and res.fun > 0:   
                 initial_point = res.x + np.random.uniform(-thres, thres, np.shape(res.x))
                 if count == 0:
                     cons.extend([{'type': 'ineq', 'fun': lambda x: -res.fun - thres - self.test_gen.f(x, dim-1)}])
                 else:
                     cons[len(cons) - 1] = {'type': 'ineq', 'fun': lambda x: -res.fun - thres - self.test_gen.f(x, dim-1)}
                 count = count + 1
+                print('stepppppppp')
                 print(count, " ", end='', flush=True)
                 for i in res.x:
                     print("%1.6f" % i, " ", end="", flush=True)
@@ -174,9 +190,11 @@ class Optimization():
                 self.test_gen.write_output(self.output, res.x)
             else:
                 count_f = count_f + 1
+                # print(count_f)
+                print(count)
         
-            if -res.fun < 0:
-                print("Maximum number of candidates reached")
-                return 
+            # if res.fun < 0:
+            #     print("Maximum number of candidates reached")
+            #     return 
         self.test_gen.close_output(self.output)
         return
