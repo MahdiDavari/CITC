@@ -13,7 +13,8 @@ The **“API”** of the challenge is file based:
 
 **This code are written in Python3 (3.7.3)<br>** <br>
 <br>
-In this sampling of high dimentuoal space challenge I used  the surrogate modeling toolbox (SMT), which is a Python package that contains a collection of surrogate modeling methods, sampling techniques, and benchmarking functions.
+In this sampling of the high dimensional space challenge, I used the surrogate modeling toolbox (SMT), which is a Python package that contains a collection of surrogate modeling methods, sampling techniques, and benchmarking functions.<br>
+
 
 You need to first install SMT by running: <br>
 `$conda install -c conda-forge smt` <br>
