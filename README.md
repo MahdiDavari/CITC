@@ -11,11 +11,18 @@ The **“API”** of the challenge is file based:
 
 `./sampler <input_file> <output_file> <n_results>`
 
-**This code are written in Python3 (3.7.3)<br>**
-You need to first install dependencies by running:<br>
+**This code are written in Python3 (3.7.3)<br>** <br>
+<br>
+In this sampling of high dimentuoal space challenge I used  the surrogate modeling toolbox (SMT), which is a Python package that contains a collection of surrogate modeling methods, sampling techniques, and benchmarking functions.
+
+You need to first install SMT by running: <br>
 `$conda install -c conda-forge smt` <br>
-and then: <br>
+<br>
+<br>
+and then install other dependencies by running:<br>
 `$pip install -r requirements.txt`
+<br>
+<br>
 
 The sampler exist in the test_files folder. <br>
 `cd test_files`<br>
