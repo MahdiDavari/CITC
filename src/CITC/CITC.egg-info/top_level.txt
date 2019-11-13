@@ -1,5 +1,3 @@
 constraints
-demo
 optimization
-run
-sample
+sampler

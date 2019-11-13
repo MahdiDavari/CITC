@@ -2,10 +2,8 @@ CITC
 README.md
 setup.py
 src/CITC/constraints.py
-src/CITC/demo.py
 src/CITC/optimization.py
-src/CITC/run.py
-src/CITC/sample.py
+src/CITC/sampler.py
 src/CITC/CITC.egg-info/PKG-INFO
 src/CITC/CITC.egg-info/SOURCES.txt
 src/CITC/CITC.egg-info/dependency_links.txt

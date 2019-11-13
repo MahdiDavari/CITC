@@ -1,5 +1,0 @@
-constraints
-demo
-optimization
-run
-sample
