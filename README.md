@@ -11,6 +11,7 @@ The **“API”** of the challenge is file based:
 
 `./sampler <input_file> <output_file> <n_results>`
 
+**This code are written in Python3 (3.7.3)<br>**
 You need to first install dependencies by running:<br>
 `$conda install -c conda-forge smt` <br>
 and then: <br>
