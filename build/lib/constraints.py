@@ -14,20 +14,6 @@ class Constraint():
         # Parse the example from the second line
         self.example = [float(x) for x in lines[1].split(" ")[0:self.n_dim]]
 
-#         self.exprs = []
-#         self.constr = []
-#         for i in range(2, len(lines)):
-#             # support comments in the first line
-#             if lines[i][0] == "#":
-#                 continue
-#             else:
-#                 LH = lines[i].partition(' >')[0]
-#                 self.constr.append(LH)
-#                 self.exprs.append(compile(LH, "<string>", "eval"))
-# #            self.exprs.append(compile(lines[i], "<string>", "eval"))
-#         return
-
-
         # Run through the rest of the lines and compile the constraints
         self.exprs = []
         for i in range(2, len(lines)):
@@ -47,9 +33,6 @@ class Constraint():
     
     def get_expressions(self):
         return self.exprs
-        
-    # def get_constr(self):
-    #     return self.constr
 
     def apply(self, x):
         """
